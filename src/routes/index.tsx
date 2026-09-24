@@ -5,7 +5,7 @@ import { SiteHeader } from "@/components/navigation/SiteHeader";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { CategoryGrid } from "@/components/home/CategoryGrid";
 import { DealsBanner, Newsletter, ProductSections, TrustStrip, WhyGimaTech } from "@/components/home/StoreSections";
-import heroImage from "@/assets/gimatech-hero.jpg";
+import heroImage from "@/assets/gimatech-dark-hero.jpg";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -25,18 +25,18 @@ function Index() {
   return <div id="top" className="min-h-screen overflow-x-clip bg-background">
     <SiteHeader />
     <main>
-      <section className="section-shell py-6 sm:py-10">
-        <div className="relative min-h-[600px] overflow-hidden rounded-xl bg-muted sm:min-h-[640px] lg:min-h-[570px]">
-          <img src={heroImage} alt="Modern laptop, keyboard, mouse and smartphone arranged on a clean technology workspace" width={1600} height={1072} fetchPriority="high" className="absolute inset-0 h-full w-full object-cover object-[62%_center] sm:object-center" />
+      <section className="relative min-h-[650px] overflow-hidden border-b border-border bg-charcoal sm:min-h-[680px] lg:min-h-[calc(100vh-96px)] lg:max-h-[820px]">
+          <img src={heroImage} alt="Premium dark technology workspace with laptop, networking equipment, keyboard, mouse, smartphone and headphones" width={1920} height={1088} fetchPriority="high" className="absolute inset-0 h-full w-full object-cover object-[72%_center] sm:object-[64%_center] lg:object-center" />
           <div className="absolute inset-0 bg-hero-overlay" />
-          <div className="relative flex min-h-[600px] max-w-2xl flex-col justify-end px-6 py-10 sm:min-h-[640px] sm:px-10 sm:py-14 lg:min-h-[570px] lg:justify-center lg:px-14">
-            <div className="inline-flex w-fit items-center gap-2 rounded-md border border-foreground/10 bg-background/90 px-3 py-1.5 text-xs font-bold text-foreground shadow-sm"><Sparkles className="size-3.5 text-primary-strong" /> Ghana's technology destination</div>
-            <h1 className="mt-5 max-w-xl font-display text-5xl font-bold leading-[1.02] text-foreground sm:text-6xl lg:text-7xl">Power Your Digital Life</h1>
-            <p className="mt-5 max-w-lg text-base leading-7 text-foreground/70 sm:text-lg">Quality technology, computer accessories and IT equipment—organized clearly and ready for delivery across supported locations in Ghana.</p>
-            <div className="mt-7 flex flex-col gap-3 sm:flex-row"><Button asChild size="lg"><a href="#featured">Shop Now <ArrowRight /></a></Button><Button asChild variant="surface" size="lg"><a href="#categories">Explore Categories</a></Button></div>
-            <div className="mt-8 flex items-center gap-2 text-xs font-semibold text-foreground/60"><ShieldCheck className="size-4 text-primary-strong" /> Demo products and prices are shown for development only.</div>
+          <div className="section-shell relative flex min-h-[650px] flex-col justify-end py-12 sm:min-h-[680px] sm:py-16 lg:min-h-[calc(100vh-96px)] lg:max-h-[820px] lg:justify-center">
+            <div className="max-w-2xl animate-fade-in">
+            <div className="inline-flex w-fit items-center gap-2 rounded-md border border-primary/35 bg-charcoal/70 px-3 py-1.5 text-xs font-bold text-silver shadow-glow-soft backdrop-blur"><Sparkles className="size-3.5 text-primary" /> Ghana's technology destination</div>
+            <h1 className="mt-6 max-w-2xl font-display text-5xl font-bold leading-[1.02] text-foreground sm:text-6xl lg:text-7xl">Power Your World with <span className="text-primary">Technology</span></h1>
+            <p className="mt-5 max-w-xl text-base leading-7 text-silver-muted sm:text-lg">Discover laptops, computers, networking equipment, accessories and more — all in one place.</p>
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row"><Button asChild size="lg"><a href="#featured">Shop Now <ArrowRight /></a></Button><Button asChild variant="surface" size="lg"><a href="#categories">Explore Categories</a></Button></div>
+            <div className="mt-8 flex items-center gap-2 text-xs font-semibold text-silver-muted"><ShieldCheck className="size-4 text-primary" /> Demo products and prices are shown for development only.</div>
+            </div>
           </div>
-        </div>
       </section>
       <TrustStrip />
       <CategoryGrid />
@@ -46,6 +46,6 @@ function Index() {
       <Newsletter />
     </main>
     <SiteFooter />
-    <a href="#contact" aria-label="Open WhatsApp support options" className="fixed bottom-4 right-4 z-40 flex items-center gap-2 rounded-full bg-whatsapp px-3.5 py-3 text-sm font-bold text-whatsapp-foreground shadow-xl transition hover:-translate-y-0.5 sm:px-4"><MessageCircle className="size-5" /><span className="hidden sm:inline">WhatsApp support</span></a>
+    <a href="#contact" aria-label="Open WhatsApp support options" className="fixed bottom-4 right-4 z-40 flex items-center gap-2 rounded-full bg-whatsapp px-3.5 py-3 text-sm font-bold text-whatsapp-foreground shadow-xl transition hover:-translate-y-1 hover:shadow-glow sm:px-4"><MessageCircle className="size-5" /><span className="hidden sm:inline">WhatsApp support</span></a>
   </div>;
 }
