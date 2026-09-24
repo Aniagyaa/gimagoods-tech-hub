@@ -1,0 +1,10 @@
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { Heart } from "lucide-react";
+import { StorePage } from "@/components/layout/StorePage";
+import { ProductCard } from "@/components/products/ProductCard";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/context/AuthContext";
+import { useWishlist } from "@/hooks/use-wishlist";
+import { products } from "@/data/catalog";
+export const Route=createFileRoute("/wishlist")({head:()=>({meta:[{title:"Wishlist — GIMATech"},{name:"description",content:"View technology products saved to your private GIMATech wishlist."},{property:"og:title",content:"Wishlist — GIMATech"},{property:"og:description",content:"Your saved GIMATech technology products."},{property:"og:type",content:"website"},{name:"twitter:card",content:"summary"}]}),component:WishlistPage});
+function WishlistPage(){const{user,loading}=useAuth();const wishlist=useWishlist();const saved=products.filter((p)=>wishlist.ids.includes(p.id));return <StorePage><section className="section-shell py-12 sm:py-16"><p className="eyebrow">Saved products</p><h1 className="mt-2 text-4xl font-bold">My Wishlist</h1>{loading?<p className="mt-8 text-muted-foreground">Loading wishlist…</p>:!user?<div className="mt-8 rounded-lg border border-border bg-card p-8 text-center"><Heart className="mx-auto size-8 text-primary"/><h2 className="mt-4 text-xl font-bold">Please log in to save products to your wishlist.</h2><div className="mt-6 flex justify-center gap-3"><Button asChild><Link to="/login">Login</Link></Button><Button asChild variant="surface"><Link to="/register">Create Account</Link></Button></div></div>:saved.length?<div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{saved.map((p)=><ProductCard key={p.id} product={p}/>)}</div>:<div className="mt-8 rounded-lg border border-border bg-card p-8 text-center"><h2 className="text-xl font-bold">Your wishlist is empty</h2><p className="mt-2 text-muted-foreground">Save products with the heart icon to find them here.</p><Button asChild className="mt-6"><Link to="/shop">Browse Products</Link></Button></div>}</section></StorePage>}

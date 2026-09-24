@@ -14,7 +14,57 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          contact: string
+          created_at: string
+          full_name: string
+          id: string
+          updated_at: string
+          username: string
+          username_normalized: string
+        }
+        Insert: {
+          contact: string
+          created_at?: string
+          full_name: string
+          id: string
+          updated_at?: string
+          username: string
+          username_normalized: string
+        }
+        Update: {
+          contact?: string
+          created_at?: string
+          full_name?: string
+          id?: string
+          updated_at?: string
+          username?: string
+          username_normalized?: string
+        }
+        Relationships: []
+      }
+      wishlist_items: {
+        Row: {
+          created_at: string
+          id: string
+          product_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          product_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          product_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

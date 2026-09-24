@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import { ArrowRight, MessageCircle, ShieldCheck, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SiteHeader } from "@/components/navigation/SiteHeader";
@@ -33,7 +34,7 @@ function Index() {
             <div className="inline-flex w-fit items-center gap-2 rounded-md border border-primary/35 bg-charcoal/70 px-3 py-1.5 text-xs font-bold text-silver shadow-glow-soft backdrop-blur"><Sparkles className="size-3.5 text-primary" /> Ghana's technology destination</div>
             <h1 className="mt-6 max-w-2xl font-display text-5xl font-bold leading-[1.02] text-foreground sm:text-6xl lg:text-7xl">Power Your World with <span className="text-primary">Technology</span></h1>
             <p className="mt-5 max-w-xl text-base leading-7 text-silver-muted sm:text-lg">Discover laptops, computers, networking equipment, accessories and more — all in one place.</p>
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row"><Button asChild size="lg"><a href="#featured">Shop Now <ArrowRight /></a></Button><Button asChild variant="surface" size="lg"><a href="#categories">Explore Categories</a></Button></div>
+             <div className="mt-8 flex flex-col gap-3 sm:flex-row"><Button asChild size="lg"><Link to="/shop">Shop Now <ArrowRight /></Link></Button><Button asChild variant="surface" size="lg"><Link to="/shop" search={{ category: "all" }}>Explore Categories</Link></Button></div>
             <div className="mt-8 flex items-center gap-2 text-xs font-semibold text-silver-muted"><ShieldCheck className="size-4 text-primary" /> Demo products and prices are shown for development only.</div>
             </div>
           </div>
