@@ -15,6 +15,9 @@ export interface Product {
   imageAlt: string;
   featured?: boolean;
   trending?: boolean;
+  newArrival?: boolean;
+  keywords?: string[];
+  specs?: Record<string, string>;
 }
 
 export interface Category {
