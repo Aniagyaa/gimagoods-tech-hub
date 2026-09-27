@@ -12,3 +12,5 @@
 - [ ] Current update: add secure customer registration/login, account state, and validation
 - [ ] Current update: build cart and checkout-preparation pages, then test the full customer journey
 - [ ] Phase 4+: Payments, order processing, inventory, notifications, MySQL/C++ API, and admin (deferred)
+- [ ] Admin Phase 1: secure SUPER_ADMIN/ADMIN authentication, centralized permissions, protected admin shell, real-data analytics, and audit-log foundation
+- [ ] Admin Phase 2+: products, categories, inventory, orders, customers, payments, finance, discounts, reviews, delivery, staff, content, and settings (deferred)
