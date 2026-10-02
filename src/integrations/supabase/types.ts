@@ -14,6 +14,143 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_accounts: {
+        Row: {
+          auth_email: string
+          contact: string
+          created_at: string
+          full_name: string
+          last_login_at: string | null
+          must_change_password: boolean
+          status: Database["public"]["Enums"]["admin_status"]
+          updated_at: string
+          user_id: string
+          username: string
+          username_normalized: string
+        }
+        Insert: {
+          auth_email: string
+          contact: string
+          created_at?: string
+          full_name: string
+          last_login_at?: string | null
+          must_change_password?: boolean
+          status?: Database["public"]["Enums"]["admin_status"]
+          updated_at?: string
+          user_id: string
+          username: string
+          username_normalized: string
+        }
+        Update: {
+          auth_email?: string
+          contact?: string
+          created_at?: string
+          full_name?: string
+          last_login_at?: string | null
+          must_change_password?: boolean
+          status?: Database["public"]["Enums"]["admin_status"]
+          updated_at?: string
+          user_id?: string
+          username?: string
+          username_normalized?: string
+        }
+        Relationships: []
+      }
+      admin_permission_overrides: {
+        Row: {
+          created_at: string
+          granted: boolean
+          granted_by: string
+          id: string
+          permission_key: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          granted: boolean
+          granted_by: string
+          id?: string
+          permission_key: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          granted?: boolean
+          granted_by?: string
+          id?: string
+          permission_key?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_permission_overrides_permission_key_fkey"
+            columns: ["permission_key"]
+            isOneToOne: false
+            referencedRelation: "permissions"
+            referencedColumns: ["key"]
+          },
+        ]
+      }
+      audit_logs: {
+        Row: {
+          action: string
+          administrator_id: string | null
+          created_at: string
+          id: string
+          metadata: Json
+          resource: string
+          resource_id: string | null
+          role: Database["public"]["Enums"]["app_role"] | null
+          username: string
+        }
+        Insert: {
+          action: string
+          administrator_id?: string | null
+          created_at?: string
+          id?: string
+          metadata?: Json
+          resource: string
+          resource_id?: string | null
+          role?: Database["public"]["Enums"]["app_role"] | null
+          username: string
+        }
+        Update: {
+          action?: string
+          administrator_id?: string | null
+          created_at?: string
+          id?: string
+          metadata?: Json
+          resource?: string
+          resource_id?: string | null
+          role?: Database["public"]["Enums"]["app_role"] | null
+          username?: string
+        }
+        Relationships: []
+      }
+      permissions: {
+        Row: {
+          created_at: string
+          key: string
+          label: string
+          module: string
+        }
+        Insert: {
+          created_at?: string
+          key: string
+          label: string
+          module: string
+        }
+        Update: {
+          created_at?: string
+          key?: string
+          label?: string
+          module?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           contact: string
@@ -44,6 +181,53 @@ export type Database = {
         }
         Relationships: []
       }
+      role_permissions: {
+        Row: {
+          created_at: string
+          permission_key: string
+          role: Database["public"]["Enums"]["app_role"]
+        }
+        Insert: {
+          created_at?: string
+          permission_key: string
+          role: Database["public"]["Enums"]["app_role"]
+        }
+        Update: {
+          created_at?: string
+          permission_key?: string
+          role?: Database["public"]["Enums"]["app_role"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "role_permissions_permission_key_fkey"
+            columns: ["permission_key"]
+            isOneToOne: false
+            referencedRelation: "permissions"
+            referencedColumns: ["key"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
       wishlist_items: {
         Row: {
           created_at: string
@@ -70,10 +254,21 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_permission: {
+        Args: { _permission: string; _user_id: string }
+        Returns: boolean
+      }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      admin_status: "active" | "disabled"
+      app_role: "SUPER_ADMIN" | "ADMIN"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -200,6 +395,9 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      admin_status: ["active", "disabled"],
+      app_role: ["SUPER_ADMIN", "ADMIN"],
+    },
   },
 } as const

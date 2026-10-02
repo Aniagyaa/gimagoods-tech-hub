@@ -8,3 +8,6 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- Keep administrator identities, roles, permission grants, and overrides separate from customer profiles because this prevents privilege escalation and supports centralized authorization.
+- Treat current product, order, payment, finance, and inventory analytics as unavailable unless backed by connected business records because fabricated dashboard figures are prohibited.
