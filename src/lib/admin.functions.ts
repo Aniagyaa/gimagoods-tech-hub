@@ -1,17 +1,29 @@
 import { createServerFn } from "@tanstack/react-start";
+import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const moduleSchema = z.enum(["analytics", "products", "categories", "inventory", "orders", "customers", "reviews", "finance", "payments", "discounts", "website", "delivery", "whatsapp", "staff", "settings", "security", "audit-logs"]);
 
 export const resolveAdminLogin = createServerFn({ method: "POST" })
-  .inputValidator((input) => z.object({ username: z.string().trim().min(3).max(80) }).parse(input))
+  .inputValidator((input) => z.object({ username: z.string().trim().min(3).max(80), password: z.string().min(1).max(200) }).parse(input))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: account } = await supabaseAdmin.from("admin_accounts")
-      .select("auth_email, status").eq("username_normalized", data.username.toLowerCase()).maybeSingle();
+      .select("user_id, auth_email, username, status").eq("username_normalized", data.username.toLowerCase()).maybeSingle();
     if (!account || account.status !== "active") throw new Error("Invalid administrator credentials.");
-    return { email: account.auth_email };
+    const url = process.env['SUPABASE_URL'];
+    const key = process.env['SUPABASE_PUBLISHABLE_KEY'];
+    if (!url || !key) throw new Error("Administrator login is unavailable.");
+    const authClient = createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
+    const { data: auth, error } = await authClient.auth.signInWithPassword({ email: account.auth_email, password: data.password });
+    if (error || !auth.session || auth.user.id !== account.user_id) throw new Error("Invalid administrator credentials.");
+    const { data: roles } = await supabaseAdmin.from("user_roles").select("role").eq("user_id", account.user_id);
+    if (!roles?.length) throw new Error("Invalid administrator credentials.");
+    const role = roles.some(({ role }) => role === "SUPER_ADMIN") ? "SUPER_ADMIN" : "ADMIN";
+    await supabaseAdmin.from("admin_accounts").update({ last_login_at: new Date().toISOString() }).eq("user_id", account.user_id);
+    await supabaseAdmin.from("audit_logs").insert({ administrator_id: account.user_id, username: account.username, role, action: "session.login", resource: "admin_account", resource_id: account.user_id });
+    return { accessToken: auth.session.access_token, refreshToken: auth.session.refresh_token };
   });
 
 export const getAdminSession = createServerFn({ method: "GET" })
