@@ -39,7 +39,7 @@ export const getAdminAnalytics = createServerFn({ method: "GET" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const [{ data: profiles, error: profileError }, { data: wishlist, error: wishlistError }] = await Promise.all([
       supabaseAdmin.from("profiles").select("id, created_at").order("created_at", { ascending: true }),
-      supabaseAdmin.from("wishlist_items").select("product_id, created_at"),
+      supabaseAdmin.from("wishlist_items").select("user_id, product_id, created_at"),
     ]);
     if (profileError || wishlistError) throw new Error("Analytics are temporarily unavailable.");
     const now = new Date();
@@ -56,7 +56,7 @@ export const getAdminAnalytics = createServerFn({ method: "GET" })
       customers: profiles?.length ?? 0,
       newCustomers: profiles?.filter(({ created_at }) => new Date(created_at) >= thirtyDaysAgo).length ?? 0,
       wishlistSaves: wishlist?.length ?? 0,
-      wishlistAdoption: profiles?.length ? Math.round(((new Set((wishlist ?? []).map((item) => item.product_id))).size / profiles.length) * 100) : 0,
+      wishlistAdoption: profiles?.length ? Math.round(((new Set((wishlist ?? []).map((item) => item.user_id))).size / profiles.length) * 100) : 0,
       registrations: Array.from(monthCounts, ([month, customers]) => ({ month, customers })).slice(-6),
       popularWishlist: Array.from(wishlistCounts, ([productId, saves]) => ({ productId, saves })).sort((a, b) => b.saves - a.saves).slice(0, 5),
       unavailable: ["Sales", "Orders", "Average order value", "Profit", "Inventory", "Payment status"],
@@ -74,6 +74,21 @@ export const recordAdminEvent = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin.from("audit_logs").insert({ administrator_id: context.userId, username: account.username, role, action: data.action, resource: data.resource, resource_id: data.resourceId, metadata: data.metadata ?? {} });
     if (error) throw new Error("The administrative action could not be recorded.");
+    return { ok: true };
+  });
+
+export const completeAdminPasswordChange = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data: account } = await context.supabase.from("admin_accounts").select("username, status").eq("user_id", context.userId).maybeSingle();
+    const { data: roles } = await context.supabase.from("user_roles").select("role").eq("user_id", context.userId);
+    if (!account || account.status !== "active" || !roles?.length) throw new Error("Administrator access denied.");
+    const role = roles.some(({ role }) => role === "SUPER_ADMIN") ? "SUPER_ADMIN" : "ADMIN";
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error: updateError } = await supabaseAdmin.from("admin_accounts").update({ must_change_password: false }).eq("user_id", context.userId);
+    if (updateError) throw new Error("Administrator setup could not be completed.");
+    const { error: auditError } = await supabaseAdmin.from("audit_logs").insert({ administrator_id: context.userId, username: account.username, role, action: "password.changed", resource: "admin_account", resource_id: context.userId });
+    if (auditError) throw new Error("Administrator setup could not be recorded.");
     return { ok: true };
   });
 
