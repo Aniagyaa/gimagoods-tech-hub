@@ -84,7 +84,7 @@ export const recordAdminEvent = createServerFn({ method: "POST" })
     if (!account || account.status !== "active" || !roles?.length) throw new Error("Administrator access denied.");
     const role = roles.some(({ role }) => role === "SUPER_ADMIN") ? "SUPER_ADMIN" : "ADMIN";
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { error } = await supabaseAdmin.from("audit_logs").insert({ administrator_id: context.userId, username: account.username, role, action: data.action, resource: data.resource, resource_id: data.resourceId, metadata: data.metadata ?? {} });
+    const { error } = await supabaseAdmin.from("audit_logs").insert({ administrator_id: context.userId, username: account.username, role, action: data.action, resource: data.resource, resource_id: data.resourceId ?? null, metadata: data.metadata ?? {} });
     if (error) throw new Error("The administrative action could not be recorded.");
     return { ok: true };
   });
