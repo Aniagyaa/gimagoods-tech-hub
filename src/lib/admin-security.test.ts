@@ -1,20 +1,21 @@
-import { describe, expect, test } from "bun:test";
+import { describe, test } from "node:test";
+import assert from "node:assert/strict";
 import { adminPasswordChangeSchema, assertAdminReady } from "./admin-security";
 
 describe("administrator security", () => {
   test("first login cannot access operational data before changing the password", () => {
-    expect(() => assertAdminReady({ status: "active", must_change_password: true }, true)).toThrow();
+    assert.throws(() => assertAdminReady({ status: "active", must_change_password: true }, true));
   });
   test("disabled administrators cannot access operational data", () => {
-    expect(() => assertAdminReady({ status: "disabled", must_change_password: false }, true)).toThrow();
+    assert.throws(() => assertAdminReady({ status: "disabled", must_change_password: false }, true));
   });
   test("missing permission denies access even after password setup", () => {
-    expect(() => assertAdminReady({ status: "active", must_change_password: false }, false)).toThrow();
+    assert.throws(() => assertAdminReady({ status: "active", must_change_password: false }, false));
   });
   test("active authorized administrators may access operational data", () => {
-    expect(() => assertAdminReady({ status: "active", must_change_password: false }, true)).not.toThrow();
+    assert.doesNotThrow(() => assertAdminReady({ status: "active", must_change_password: false }, true));
   });
   test("temporary password cannot be reused", () => {
-    expect(adminPasswordChangeSchema.safeParse({ currentPassword: "example-current-password", password: "example-current-password" }).success).toBe(false);
+    assert.equal(adminPasswordChangeSchema.safeParse({ currentPassword: "example-current-password", password: "example-current-password" }).success, false);
   });
 });
