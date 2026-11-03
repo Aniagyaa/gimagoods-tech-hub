@@ -11,3 +11,4 @@
 
 - Keep administrator identities, roles, permission grants, and overrides separate from customer profiles because this prevents privilege escalation and supports centralized authorization.
 - Treat current product, order, payment, finance, and inventory analytics as unavailable unless backed by connected business records because fabricated dashboard figures are prohibited.
+- Validate password rotation and operational access in server functions, using shared tested guards, because client redirects alone cannot enforce first-login security.
