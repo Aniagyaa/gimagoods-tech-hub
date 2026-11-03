@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { adminPasswordChangeSchema, assertAdminReady } from "./admin-security";
 
 const moduleSchema = z.enum(["analytics", "products", "categories", "inventory", "orders", "customers", "reviews", "finance", "payments", "discounts", "website", "delivery", "whatsapp", "staff", "settings", "security", "audit-logs"]);
 
@@ -45,9 +46,14 @@ export const getAdminSession = createServerFn({ method: "GET" })
 
 export const getAdminAnalytics = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
-    const { data: allowed } = await context.supabase.rpc("has_permission", { _user_id: context.userId, _permission: "analytics.view" });
-    if (!allowed) throw new Error("You do not have permission to view analytics.");
+  .inputValidator((input) => z.object({ days: z.union([z.literal(30), z.literal(90), z.literal(0)]) }).parse(input))
+  .handler(async ({ context, data }) => {
+    const [{ data: allowed }, { data: dashboardAllowed }, { data: account }] = await Promise.all([
+      context.supabase.rpc("has_permission", { _user_id: context.userId, _permission: "analytics.view" }),
+      context.supabase.rpc("has_permission", { _user_id: context.userId, _permission: "dashboard.view" }),
+      context.supabase.from("admin_accounts").select("status, must_change_password").eq("user_id", context.userId).maybeSingle(),
+    ]);
+    assertAdminReady(account, Boolean(allowed && dashboardAllowed));
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const [{ data: profiles, error: profileError }, { data: wishlist, error: wishlistError }] = await Promise.all([
       supabaseAdmin.from("profiles").select("id, created_at").order("created_at", { ascending: true }),
@@ -55,20 +61,23 @@ export const getAdminAnalytics = createServerFn({ method: "GET" })
     ]);
     if (profileError || wishlistError) throw new Error("Analytics are temporarily unavailable.");
     const now = new Date();
+    const cutoff = data.days ? new Date(now.getTime() - data.days * 86400000) : null;
+    const periodProfiles = (profiles ?? []).filter((row) => !cutoff || new Date(row.created_at) >= cutoff);
+    const periodWishlist = (wishlist ?? []).filter((row) => !cutoff || new Date(row.created_at) >= cutoff);
     const thirtyDaysAgo = new Date(now); thirtyDaysAgo.setUTCDate(now.getUTCDate() - 30);
     const monthCounts = new Map<string, number>();
-    for (const profile of profiles ?? []) {
+    for (const profile of periodProfiles) {
       const date = new Date(profile.created_at);
       const key = date.toLocaleDateString("en-GB", { month: "short", year: "2-digit", timeZone: "UTC" });
       monthCounts.set(key, (monthCounts.get(key) ?? 0) + 1);
     }
     const wishlistCounts = new Map<string, number>();
-    for (const item of wishlist ?? []) wishlistCounts.set(item.product_id, (wishlistCounts.get(item.product_id) ?? 0) + 1);
+    for (const item of periodWishlist) wishlistCounts.set(item.product_id, (wishlistCounts.get(item.product_id) ?? 0) + 1);
     return {
       customers: profiles?.length ?? 0,
       newCustomers: profiles?.filter(({ created_at }) => new Date(created_at) >= thirtyDaysAgo).length ?? 0,
-      wishlistSaves: wishlist?.length ?? 0,
-      wishlistAdoption: profiles?.length ? Math.round(((new Set((wishlist ?? []).map((item) => item.user_id))).size / profiles.length) * 100) : 0,
+      wishlistSaves: periodWishlist.length,
+      wishlistAdoption: profiles?.length ? Math.round((new Set(periodWishlist.map((item) => item.user_id)).size / profiles.length) * 100) : 0,
       registrations: Array.from(monthCounts, ([month, customers]) => ({ month, customers })).slice(-6),
       popularWishlist: Array.from(wishlistCounts, ([productId, saves]) => ({ productId, saves })).sort((a, b) => b.saves - a.saves).slice(0, 5),
       unavailable: ["Sales", "Orders", "Average order value", "Profit", "Inventory", "Payment status"],
@@ -77,25 +86,28 @@ export const getAdminAnalytics = createServerFn({ method: "GET" })
 
 export const recordAdminEvent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input) => z.object({ action: z.string().min(2).max(100), resource: z.string().min(2).max(100), resourceId: z.string().max(200).optional(), metadata: z.record(z.string(), z.string()).optional() }).parse(input))
+  .inputValidator((input) => z.object({ action: z.literal("session.logout") }).parse(input))
   .handler(async ({ context, data }) => {
     const { data: account } = await context.supabase.from("admin_accounts").select("username, status").eq("user_id", context.userId).maybeSingle();
     const { data: roles } = await context.supabase.from("user_roles").select("role").eq("user_id", context.userId);
     if (!account || account.status !== "active" || !roles?.length) throw new Error("Administrator access denied.");
     const role = roles.some(({ role }) => role === "SUPER_ADMIN") ? "SUPER_ADMIN" : "ADMIN";
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { error } = await supabaseAdmin.from("audit_logs").insert({ administrator_id: context.userId, username: account.username, role, action: data.action, resource: data.resource, resource_id: data.resourceId ?? null, metadata: data.metadata ?? {} });
+    const { error } = await supabaseAdmin.from("audit_logs").insert({ administrator_id: context.userId, username: account.username, role, action: data.action, resource: "admin_account", resource_id: context.userId });
     if (error) throw new Error("The administrative action could not be recorded.");
     return { ok: true };
   });
 
 export const completeAdminPasswordChange = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
+  .inputValidator((input) => adminPasswordChangeSchema.parse(input))
+  .handler(async ({ context, data }) => {
     const { data: account } = await context.supabase.from("admin_accounts").select("username, status").eq("user_id", context.userId).maybeSingle();
     const { data: roles } = await context.supabase.from("user_roles").select("role").eq("user_id", context.userId);
     if (!account || account.status !== "active" || !roles?.length) throw new Error("Administrator access denied.");
     const role = roles.some(({ role }) => role === "SUPER_ADMIN") ? "SUPER_ADMIN" : "ADMIN";
+    const { error: passwordError } = await context.supabase.auth.updateUser({ password: data.password, current_password: data.currentPassword });
+    if (passwordError) throw new Error("Password update failed. Check your current password and try a stronger new password.");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error: updateError } = await supabaseAdmin.from("admin_accounts").update({ must_change_password: false }).eq("user_id", context.userId);
     if (updateError) throw new Error("Administrator setup could not be completed.");

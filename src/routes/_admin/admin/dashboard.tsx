@@ -1,4 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
@@ -22,13 +24,14 @@ export const Route = createFileRoute("/_admin/admin/dashboard")({
 
 function Dashboard() {
   const fetchAnalytics = useServerFn(getAdminAnalytics);
-  const query = useQuery({ queryKey: ["admin-analytics"], queryFn: () => fetchAnalytics() });
+  const [days, setDays] = useState<30 | 90 | 0>(30);
+  const query = useQuery({ queryKey: ["admin-analytics", days], queryFn: () => fetchAnalytics({ data: { days } }) });
   return (
     <AdminShell requiredPermission="dashboard.view">
       <div className="p-4 sm:p-6 lg:p-8">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div><p className="eyebrow">Operational overview</p><h1 className="mt-2 text-3xl font-bold">Dashboard</h1><p className="mt-2 text-sm text-muted-foreground">Live customer and wishlist data. Demo catalog values are clearly separated.</p></div>
-          <span className="rounded-md border border-border bg-card px-3 py-2 text-xs text-muted-foreground">Updated when this page loads</span>
+          <div className="flex gap-2" aria-label="Analytics period">{([30,90,0] as const).map((value) => <Button key={value} variant={days === value ? "default" : "outline"} size="sm" aria-pressed={days === value} onClick={() => setDays(value)}>{value ? `${value} days` : "All time"}</Button>)}</div>
         </div>
         {query.isLoading ? <LoadingMetrics /> : query.isError || !query.data ? <AnalyticsError /> : (
           <>
