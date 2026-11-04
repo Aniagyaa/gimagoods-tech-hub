@@ -23,7 +23,7 @@ export const matchesCustomerCredentials = (profile: { username: string; contact:
 export const authErrorMessage = (message: string) => {
   const text = message.toLowerCase();
   if (text.includes("invalid login") || text.includes("invalid username")) return "Invalid username, contact or password.";
-  if (text.includes("phone provider") || text.includes("phone signups are disabled") || text.includes("sms")) return "Phone sign-in is currently unavailable. GIMATech needs to enable phone sign-in and configure its SMS provider.";
+  if (text.includes("phone provider") || text.includes("phone signups are disabled") || text.includes("phone sign-in is currently unavailable") || text.includes("sms")) return "Phone sign-in is currently unavailable. GIMATech needs to enable phone sign-in and configure its SMS provider.";
   if (text.includes("username already")) return "Username already exists.";
   if (text.includes("contact number already")) return "Contact number already registered.";
   if (text.includes("rate") || text.includes("too many")) return "Too many attempts. Please wait 15 minutes and try again.";
