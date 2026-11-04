@@ -130,6 +130,24 @@ export type Database = {
         }
         Relationships: []
       }
+      customer_auth_attempts: {
+        Row: {
+          attempts: number
+          identifier: string
+          started_at: string
+        }
+        Insert: {
+          attempts?: number
+          identifier: string
+          started_at?: string
+        }
+        Update: {
+          attempts?: number
+          identifier?: string
+          started_at?: string
+        }
+        Relationships: []
+      }
       permissions: {
         Row: {
           created_at: string
@@ -153,28 +171,34 @@ export type Database = {
       }
       profiles: {
         Row: {
+          account_status: string
           contact: string
           created_at: string
           full_name: string
           id: string
+          last_login_at: string | null
           updated_at: string
           username: string
           username_normalized: string
         }
         Insert: {
+          account_status?: string
           contact: string
           created_at?: string
           full_name: string
           id: string
+          last_login_at?: string | null
           updated_at?: string
           username: string
           username_normalized: string
         }
         Update: {
+          account_status?: string
           contact?: string
           created_at?: string
           full_name?: string
           id?: string
+          last_login_at?: string | null
           updated_at?: string
           username?: string
           username_normalized?: string
@@ -254,6 +278,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      customer_auth_slot: { Args: { _identifier: string }; Returns: boolean }
       has_permission: {
         Args: { _permission: string; _user_id: string }
         Returns: boolean
@@ -268,7 +293,7 @@ export type Database = {
     }
     Enums: {
       admin_status: "active" | "disabled"
-      app_role: "SUPER_ADMIN" | "ADMIN"
+      app_role: "SUPER_ADMIN" | "ADMIN" | "CUSTOMER"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -397,7 +422,7 @@ export const Constants = {
   public: {
     Enums: {
       admin_status: ["active", "disabled"],
-      app_role: ["SUPER_ADMIN", "ADMIN"],
+      app_role: ["SUPER_ADMIN", "ADMIN", "CUSTOMER"],
     },
   },
 } as const

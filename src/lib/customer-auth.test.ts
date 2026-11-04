@@ -1,0 +1,11 @@
+import { describe, expect, it } from "vitest";
+import { normalizePhone, customerRegistrationSchema, matchesCustomerCredentials, safeCustomerDestination } from "./validation";
+describe("GIMATech customer authentication rules", () => {
+  it("normalizes Ghana numbers consistently", () => { expect(normalizePhone("024 123 4567")).toBe("+233241234567"); expect(normalizePhone("+233241234567")).toBe("+233241234567"); expect(normalizePhone("1234")).toBeNull(); });
+  const valid = { fullName: " Customer Name ", username: "Customer", contact: "0241234567", password: "securepass123", confirm: "securepass123" };
+  it("requires eight password characters", () => { expect(customerRegistrationSchema.safeParse({ ...valid, password: "1234567", confirm: "1234567" }).success).toBe(false); expect(customerRegistrationSchema.safeParse({ ...valid, password: "12345678", confirm: "12345678" }).success).toBe(true); });
+  it("requires matching confirmation", () => { expect(customerRegistrationSchema.safeParse({ ...valid, confirm: "different" }).success).toBe(false); });
+  it("requires name and username", () => { expect(customerRegistrationSchema.safeParse({ ...valid, fullName: " " }).success).toBe(false); expect(customerRegistrationSchema.safeParse({ ...valid, username: "ab" }).success).toBe(false); });
+  it("requires username and contact from the same active account", () => { const profile = { username: "Customer", contact: "+233241234567", account_status: "active" }; expect(matchesCustomerCredentials(profile, "CUSTOMER", "0241234567")).toBe(true); expect(matchesCustomerCredentials(profile, "Other", "0241234567")).toBe(false); expect(matchesCustomerCredentials(profile, "Customer", "0541234567")).toBe(false); expect(matchesCustomerCredentials({ ...profile, account_status: "disabled" }, "Customer", "0241234567")).toBe(false); });
+  it("rejects external and administrator redirects", () => { expect(safeCustomerDestination("//example.com")).toBe("/account"); expect(safeCustomerDestination("/admin/dashboard")).toBe("/account"); expect(safeCustomerDestination("/checkout")).toBe("/checkout"); });
+});
