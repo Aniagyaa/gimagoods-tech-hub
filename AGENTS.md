@@ -12,3 +12,5 @@
 - Keep administrator identities, roles, permission grants, and overrides separate from customer profiles because this prevents privilege escalation and supports centralized authorization.
 - Treat current product, order, payment, finance, and inventory analytics as unavailable unless backed by connected business records because fabricated dashboard figures are prohibited.
 - Validate password rotation and operational access in server functions, using shared tested guards, because client redirects alone cannot enforce first-login security.
+- Customer registration and three-field login run through server functions with a fresh publishable auth client; sessions are returned only after matching the private profile and CUSTOMER membership, while privileged clients never sign in.
+- Customer signup creates profile and fixed CUSTOMER membership in one Auth trigger transaction; profile roles remain in user_roles and only editable display fields receive customer UPDATE grants.

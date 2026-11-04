@@ -1,5 +1,10 @@
 # GIMATech Roadmap
 
+- [x] Authentication repair: reproduce disabled phone signup/login, implement server-verified three-field login and profile/session handling
+- [x] Authentication repair: add database uniqueness, fixed CUSTOMER membership, account edits and current-password changes
+- [ ] Authentication repair: real registration, uniqueness, session persistence, logout, and customer authorization verification — blocked by disabled phone auth and unconfigured SMS provider
+- [ ] Authentication repair: secure phone password recovery — requires SMS provider setup; do not invent email identifiers
+
 - [x] Phase 1: Build original Ghana-focused storefront architecture and logo-aligned lime/charcoal design system
 - [x] Phase 1: Add responsive header, mobile navigation, search entry, account, wishlist, and cart access
 - [x] Phase 1: Build homepage hero, trust benefits, categories, featured products, trending products, deals, and Why GIMATech
