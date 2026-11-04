@@ -1,5 +1,9 @@
 # GIMATech Roadmap
 
+- [ ] Authentication repair: diagnose real signup failure, repair three-field login and customer profile/session handling
+- [ ] Authentication repair: uniqueness, customer-only authorization, account edits and password management
+- [ ] Authentication repair: verify real registration/login/reset and identify external SMS configuration blockers
+
 - [x] Phase 1: Build original Ghana-focused storefront architecture and logo-aligned lime/charcoal design system
 - [x] Phase 1: Add responsive header, mobile navigation, search entry, account, wishlist, and cart access
 - [x] Phase 1: Build homepage hero, trust benefits, categories, featured products, trending products, deals, and Why GIMATech
