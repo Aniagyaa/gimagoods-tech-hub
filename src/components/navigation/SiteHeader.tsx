@@ -18,7 +18,7 @@ const navItems = [
 
 function PrimaryNavLink({ item, close }: { item: (typeof navItems)[number]; close?: () => void }) {
   const classes = "rounded-md px-2.5 py-2 text-sm font-semibold transition-colors";
-  const shared = { onClick: close, activeProps: { className: "text-primary bg-primary-soft" }, inactiveProps: { className: "text-silver hover:bg-muted hover:text-primary" }, className: classes };
+  const shared = { onClick: close, activeProps: { className: "text-primary-strong bg-primary-soft" }, inactiveProps: { className: "text-silver hover:bg-muted hover:text-primary" }, className: classes };
   if (item.to === "/shop") return <Link to="/shop" search={item.search ?? {}} {...shared}>{item.label}</Link>;
   if (item.to === "/about") return <Link to="/about" {...shared}>{item.label}</Link>;
   if (item.to === "/contact") return <Link to="/contact" {...shared}>{item.label}</Link>;
@@ -38,10 +38,10 @@ export function SiteHeader() {
   }, [query]);
   const submitSearch = (event: FormEvent) => { event.preventDefault(); const q = query.trim(); if (q) navigate({ to: "/shop", search: { q } }); setMenuOpen(false); };
 
-  return <header className="sticky top-0 z-50 border-b border-border bg-charcoal/95 shadow-lg backdrop-blur-xl">
+  return <header className="sticky top-0 z-50 border-b border-border bg-card/95 shadow-sm backdrop-blur-xl">
     <div className="border-b border-border bg-surface"><div className="mx-auto flex h-8 max-w-7xl items-center justify-center px-4 text-center text-[11px] font-semibold text-silver sm:justify-between sm:px-6 lg:px-8"><span>Technology. Simplified.</span><span className="hidden text-silver-muted sm:inline">Demo storefront · Ghana-focused shopping</span></div></div>
     <div className="mx-auto flex h-[70px] max-w-7xl items-center gap-3 px-4 sm:px-6 lg:px-8">
-      <Link to="/" className="flex h-12 w-[116px] shrink-0 items-center sm:w-[134px]" aria-label="GIMATech home"><img src={logoAsset.url} alt="GIMA Technologies" className="h-11 w-full object-contain object-left" /></Link>
+      <Link to="/" className="flex h-12 w-[116px] shrink-0 items-center sm:w-[134px]" aria-label="GIMATech home"><img src={logoAsset.url} alt="GIMA Technologies" className="h-11 w-full rounded-md bg-charcoal p-1.5 object-contain" /></Link>
       <nav className="ml-2 hidden items-center gap-0.5 lg:flex" aria-label="Primary navigation">{navItems.map((item) => <PrimaryNavLink key={item.label} item={item}/>)}</nav>
       <form onSubmit={submitSearch} className="relative ml-auto hidden w-full max-w-xs md:block">
         <Search className="pointer-events-none absolute left-3 top-3 size-4 text-silver-muted" /><Input value={query} onChange={(event) => setQuery(event.target.value)} className="h-10 border-border bg-card pl-9 pr-4 text-foreground shadow-none" placeholder="Search products, brands, categories..." aria-label="Search products" />

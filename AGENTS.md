@@ -14,3 +14,5 @@
 - Validate password rotation and operational access in server functions, using shared tested guards, because client redirects alone cannot enforce first-login security.
 - Customer registration and three-field login run through server functions with a fresh publishable auth client; sessions are returned only after matching the private profile and CUSTOMER membership, while privileged clients never sign in.
 - Customer signup creates profile and fixed CUSTOMER membership in one Auth trigger transaction; profile roles remain in user_roles and only editable display fields receive customer UPDATE grants.
+- Keep shared business contact values and validation in one module; contact writes use a validated public server function with an insert-only publishable client, and administrator reads require operational readiness plus customers.view, so visitors cannot read submissions.
+- Use the light semantic theme globally and a scoped dark-band palette on deliberate charcoal sections, so storefront and administrator pages retain readable contrast.
