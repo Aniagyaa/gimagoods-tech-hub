@@ -17,8 +17,10 @@ import { Route as CartRouteImport } from './routes/cart'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as ShopRouteImport } from './routes/shop'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as WishlistRouteImport } from './routes/wishlist'
 import { Route as AdminLoginRouteImport } from './routes/admin/login'
 import { Route as ProductsProductIdRouteImport } from './routes/products.$productId'
@@ -65,6 +67,11 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RegisterRoute = RegisterRouteImport.update({
   id: '/register',
   path: '/register',
@@ -73,6 +80,11 @@ const RegisterRoute = RegisterRouteImport.update({
 const ShopRoute = ShopRouteImport.update({
   id: '/shop',
   path: '/shop',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
   getParentRoute: () => rootRouteImport,
 } as any)
 const WishlistRoute = WishlistRouteImport.update({
@@ -115,8 +127,10 @@ export interface FileRoutesByFullPath {
   '/checkout': typeof CheckoutRoute
   '/contact': typeof ContactRoute
   '/login': typeof LoginRoute
+  '/privacy': typeof PrivacyRoute
   '/register': typeof RegisterRoute
   '/shop': typeof ShopRoute
+  '/terms': typeof TermsRoute
   '/wishlist': typeof WishlistRoute
   '/admin/login': typeof AdminLoginRoute
   '/products/$productId': typeof ProductsProductIdRoute
@@ -132,8 +146,10 @@ export interface FileRoutesByTo {
   '/checkout': typeof CheckoutRoute
   '/contact': typeof ContactRoute
   '/login': typeof LoginRoute
+  '/privacy': typeof PrivacyRoute
   '/register': typeof RegisterRoute
   '/shop': typeof ShopRoute
+  '/terms': typeof TermsRoute
   '/wishlist': typeof WishlistRoute
   '/admin/login': typeof AdminLoginRoute
   '/products/$productId': typeof ProductsProductIdRoute
@@ -151,8 +167,10 @@ export interface FileRoutesById {
   '/checkout': typeof CheckoutRoute
   '/contact': typeof ContactRoute
   '/login': typeof LoginRoute
+  '/privacy': typeof PrivacyRoute
   '/register': typeof RegisterRoute
   '/shop': typeof ShopRoute
+  '/terms': typeof TermsRoute
   '/wishlist': typeof WishlistRoute
   '/admin/login': typeof AdminLoginRoute
   '/products/$productId': typeof ProductsProductIdRoute
@@ -170,8 +188,10 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/contact'
     | '/login'
+    | '/privacy'
     | '/register'
     | '/shop'
+    | '/terms'
     | '/wishlist'
     | '/admin/login'
     | '/products/$productId'
@@ -187,8 +207,10 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/contact'
     | '/login'
+    | '/privacy'
     | '/register'
     | '/shop'
+    | '/terms'
     | '/wishlist'
     | '/admin/login'
     | '/products/$productId'
@@ -205,8 +227,10 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/contact'
     | '/login'
+    | '/privacy'
     | '/register'
     | '/shop'
+    | '/terms'
     | '/wishlist'
     | '/admin/login'
     | '/products/$productId'
@@ -224,8 +248,10 @@ export interface RootRouteChildren {
   CheckoutRoute: typeof CheckoutRoute
   ContactRoute: typeof ContactRoute
   LoginRoute: typeof LoginRoute
+  PrivacyRoute: typeof PrivacyRoute
   RegisterRoute: typeof RegisterRoute
   ShopRoute: typeof ShopRoute
+  TermsRoute: typeof TermsRoute
   WishlistRoute: typeof WishlistRoute
   AdminLoginRoute: typeof AdminLoginRoute
   ProductsProductIdRoute: typeof ProductsProductIdRoute
@@ -289,6 +315,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/register': {
       id: '/register'
       path: '/register'
@@ -301,6 +334,13 @@ declare module '@tanstack/react-router' {
       path: '/shop'
       fullPath: '/shop'
       preLoaderRoute: typeof ShopRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/wishlist': {
@@ -373,8 +413,10 @@ const rootRouteChildren: RootRouteChildren = {
   CheckoutRoute: CheckoutRoute,
   ContactRoute: ContactRoute,
   LoginRoute: LoginRoute,
+  PrivacyRoute: PrivacyRoute,
   RegisterRoute: RegisterRoute,
   ShopRoute: ShopRoute,
+  TermsRoute: TermsRoute,
   WishlistRoute: WishlistRoute,
   AdminLoginRoute: AdminLoginRoute,
   ProductsProductIdRoute: ProductsProductIdRoute,
