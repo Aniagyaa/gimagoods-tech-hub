@@ -1,5 +1,9 @@
 # GIMATech Roadmap
 
+- [ ] November update: official contact details, real stored contact messages and administrator inbox
+- [ ] November update: balanced light/lime/charcoal theme across existing pages, remove unavailable newsletter signup
+- [ ] November update: verify contact submission, links, cart and desktop/tablet/mobile layouts
+
 - [x] Authentication repair: reproduce disabled phone signup/login, implement server-verified three-field login and profile/session handling
 - [x] Authentication repair: add database uniqueness, fixed CUSTOMER membership, account edits and current-password changes
 - [ ] Authentication repair: real registration, uniqueness, session persistence, logout, and customer authorization verification — blocked by disabled phone auth and unconfigured SMS provider
