@@ -1,8 +1,9 @@
 # GIMATech Roadmap
 
-- [ ] November update: official contact details, real stored contact messages and administrator inbox
-- [ ] November update: balanced light/lime/charcoal theme across existing pages, remove unavailable newsletter signup
-- [ ] November update: verify contact submission, links, cart and desktop/tablet/mobile layouts
+- [x] November update: official contact details, real stored contact messages and permission-protected administrator inbox
+- [x] November update: balanced light/lime/charcoal theme across existing pages, remove unavailable newsletter signup
+- [x] November update: verified stored contact submission, links, cart and desktop/tablet/mobile layouts; tests pass
+- [ ] November update: owner email notifications — requires a paid plan and verified owned sender domain; authenticated inbox visual check awaits a ready administrator session
 
 - [x] Authentication repair: reproduce disabled phone signup/login, implement server-verified three-field login and profile/session handling
 - [x] Authentication repair: add database uniqueness, fixed CUSTOMER membership, account edits and current-password changes
