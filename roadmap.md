@@ -1,5 +1,9 @@
 # GIMATech Roadmap
 
+- [ ] Simplified authentication: email/password signup with immediate sessions, private profiles and fixed CUSTOMER role
+- [ ] Simplified authentication: email or username login, homepage links and email password recovery
+- [ ] Simplified authentication: real signup/login/duplicates/recovery and administrator security checks
+
 - [x] November update: official contact details, real stored contact messages and permission-protected administrator inbox
 - [x] November update: balanced light/lime/charcoal theme across existing pages, remove unavailable newsletter signup
 - [x] November update: verified stored contact submission, links, cart and desktop/tablet/mobile layouts; tests pass

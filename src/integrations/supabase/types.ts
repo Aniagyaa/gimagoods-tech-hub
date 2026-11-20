@@ -204,6 +204,7 @@ export type Database = {
           account_status: string
           contact: string
           created_at: string
+          email: string | null
           full_name: string
           id: string
           last_login_at: string | null
@@ -215,6 +216,7 @@ export type Database = {
           account_status?: string
           contact: string
           created_at?: string
+          email?: string | null
           full_name: string
           id: string
           last_login_at?: string | null
@@ -226,6 +228,7 @@ export type Database = {
           account_status?: string
           contact?: string
           created_at?: string
+          email?: string | null
           full_name?: string
           id?: string
           last_login_at?: string | null
