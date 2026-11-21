@@ -1,0 +1,8 @@
+import { cloneElement, isValidElement, type ReactNode } from "react";
+import { Link } from "@tanstack/react-router";
+import { ArrowLeft } from "lucide-react";
+import { StorePage } from "@/components/layout/StorePage";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+export function AuthShell({title,subtitle,children}:{title:string;subtitle:string;children:ReactNode}){return <StorePage><section className="section-shell grid min-h-[70vh] place-items-center py-12"><div className="w-full max-w-md rounded-lg border border-border bg-card p-6 shadow-card sm:p-8"><Button asChild variant="ghost" className="mb-5 -ml-3"><Link to="/"><ArrowLeft/>Back to Homepage</Link></Button><p className="eyebrow">Customer account</p><h1 className="mt-2 text-3xl font-bold">{title}</h1><p className="mt-2 text-sm text-muted-foreground">{subtitle}</p><div className="mt-7">{children}</div></div></section></StorePage>}
+export function Field({label,error,children}:{label:string;error?:string|undefined;children:ReactNode}){return <div><Label htmlFor={`auth-${label.toLowerCase().replace(/\s+/g,"-")}`}>{label}</Label><div className="mt-2">{isValidElement<{id?:string}>(children)?cloneElement(children,{id:`auth-${label.toLowerCase().replace(/\s+/g,"-")}`}):children}</div>{error&&<p role="alert" className="mt-1.5 text-xs font-semibold text-destructive">{error}</p>}</div>}

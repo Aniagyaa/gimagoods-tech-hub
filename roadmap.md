@@ -1,5 +1,8 @@
 # GIMATech Roadmap
 
+- [ ] Official colour update: apply white 25%, dark brown 35%, lemon green 20%, orange 20% visual balance without changing layouts or functionality
+- [ ] Official colour update: inspect all storefront and administrator pages on desktop and phone
+
 - [ ] Simplified authentication: email/password signup with immediate sessions, private profiles and fixed CUSTOMER role
 - [ ] Simplified authentication: email or username login, homepage links and email password recovery
 - [ ] Simplified authentication: real signup/login/duplicates/recovery and administrator security checks

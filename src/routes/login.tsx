@@ -1,21 +1,29 @@
-import { cloneElement, isValidElement, useState, type FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { LogIn } from "lucide-react";
 import { z } from "zod";
-import { StorePage } from "@/components/layout/StorePage";
+import { AuthShell, Field } from "@/components/auth/AuthForm";
 import { PasswordInput } from "@/components/auth/PasswordInput";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
-import { authErrorMessage, normalizePhone, safeCustomerDestination } from "@/lib/validation";
+import { customerCredentialsSchema, authErrorMessage, safeCustomerDestination } from "@/lib/validation";
 import { useAuth } from "@/context/AuthContext";
-import { useServerFn } from "@tanstack/react-start";
 import { loginCustomer } from "@/lib/customer-auth.functions";
-
-const loginSearch=z.object({redirect:z.string().optional()});
-type LoginErrors={username?:string;contact?:string;password?:string;form?:string};
-export const Route=createFileRoute("/login")({validateSearch:loginSearch,head:()=>({meta:[{title:"Login — GIMATech"},{name:"description",content:"Sign in securely to your GIMATech customer account."},{property:"og:title",content:"Login — GIMATech"},{property:"og:description",content:"Access your GIMATech customer account."},{property:"og:type",content:"website"},{name:"twitter:card",content:"summary"}]}),component:LoginPage});
-function LoginPage(){const login=useServerFn(loginCustomer);const navigate=useNavigate({from:"/login"});const search=Route.useSearch();const{user}=useAuth();const[values,setValues]=useState({username:"",contact:"",password:""});const[errors,setErrors]=useState<LoginErrors>({});const[busy,setBusy]=useState(false);if(user)return <StorePage><div className="section-shell py-24 text-center"><h1 className="text-3xl font-bold">You’re already signed in</h1><Button asChild className="mt-6"><Link to="/account">Open My Account</Link></Button></div></StorePage>;async function submit(e:FormEvent){e.preventDefault();const next:LoginErrors={};if(!values.username.trim())next.username="Please enter your username.";if(!normalizePhone(values.contact))next.contact="Please enter a valid contact number.";if(!values.password)next.password="Please enter your password.";setErrors(next);if(Object.keys(next).length)return;setBusy(true);const phone=normalizePhone(values.contact);if(!phone){setBusy(false);return;}try{const result=await login({data:{username:values.username,contact:phone,password:values.password}});if(result.error||!result.session){setErrors({form:result.error??"Invalid username, contact or password."});return;}const{error}=await supabase.auth.setSession(result.session);if(error){setErrors({form:authErrorMessage(error.message)});return;}await navigate({to:safeCustomerDestination(search.redirect)});}catch(error){setErrors({form:authErrorMessage(error instanceof Error?error.message:"Unable to connect to authentication service.")});}finally{setBusy(false);}}return <AuthShell title="Welcome back to GIMATech" subtitle="Sign in with your username, contact number and password."><form onSubmit={submit} className="space-y-4" noValidate><Field label="Username" error={errors.username}><Input value={values.username} onChange={(e)=>setValues({...values,username:e.target.value})} placeholder="Enter your username" className="h-11 bg-surface" autoComplete="username"/></Field><Field label="Contact" error={errors.contact}><Input value={values.contact} onChange={(e)=>setValues({...values,contact:e.target.value})} placeholder="Enter your contact number" className="h-11 bg-surface" inputMode="tel" autoComplete="tel"/></Field><Field label="Password" error={errors.password}><PasswordInput value={values.password} onChange={(e)=>setValues({...values,password:e.target.value})} placeholder="Enter your password" autoComplete="current-password"/></Field>{errors.form&&<p role="alert" className="rounded-md border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">{errors.form}</p>}<Button type="submit" size="lg" className="w-full" disabled={busy}><LogIn/>{busy?"Signing in…":"Login"}</Button><p className="text-center text-sm text-muted-foreground">Don't have an account? <Link to="/register" className="font-bold text-primary hover:underline">Create Account</Link></p></form></AuthShell>}
-export function AuthShell({title,subtitle,children}:{title:string;subtitle:string;children:React.ReactNode}){return <StorePage><section className="section-shell grid min-h-[70vh] place-items-center py-12"><div className="w-full max-w-md rounded-lg border border-border bg-card p-6 shadow-card sm:p-8"><p className="eyebrow">Customer account</p><h1 className="mt-2 text-3xl font-bold">{title}</h1><p className="mt-2 text-sm text-muted-foreground">{subtitle}</p><div className="mt-7">{children}</div></div></section></StorePage>}
-export function Field({label,error,children}:{label:string;error?:string|undefined;children:React.ReactNode}){return <div><Label htmlFor={`auth-${label.toLowerCase().replace(/\s+/g,"-")}`}>{label}</Label><div className="mt-2">{isValidElement<{id?:string}>(children)?cloneElement(children,{id:`auth-${label.toLowerCase().replace(/\s+/g,"-")}`}):children}</div>{error&&<p role="alert" className="mt-1.5 text-xs font-semibold text-destructive">{error}</p>}</div>}
+export const Route = createFileRoute("/login")({ validateSearch: z.object({redirect:z.string().optional()}), head:()=>({meta:[{title:"Login — GIMATech"},{name:"description",content:"Sign in to GIMATech with your email address or username and password."},{property:"og:title",content:"Customer Login — GIMATech"},{property:"og:description",content:"Access your private GIMATech customer account."},{property:"og:type",content:"website"},{name:"twitter:card",content:"summary"}]}), component: LoginPage });
+function LoginPage() {
+ const login=useServerFn(loginCustomer); const navigate=useNavigate(); const search=Route.useSearch(); const {user}=useAuth();
+ const [values,setValues]=useState({identifier:"",password:""}); const [error,setError]=useState(""); const [busy,setBusy]=useState(false);
+ async function submit(e:FormEvent) { e.preventDefault(); const parsed=customerCredentialsSchema.safeParse(values); if(!parsed.success){setError(parsed.error.issues[0]?.message??"Check your details.");return;} setError("");setBusy(true);
+ try { const result=await login({data:parsed.data}); if(result.error||!result.session){setError(result.error??"Unable to sign in.");return;} const {error}=await supabase.auth.setSession(result.session);if(error)throw error;await navigate({to:safeCustomerDestination(search.redirect)}); }
+ catch(e){setError(authErrorMessage(e instanceof Error?e.message:"Unable to connect."));}finally{setBusy(false);} }
+ return <AuthShell title="Welcome back to GIMATech" subtitle="Your customer account.">{user?<Button asChild className="w-full"><Link to="/account">Open My Account</Link></Button>:<form onSubmit={submit} className="space-y-4" noValidate>
+ <Field label="Email Address or Username"><Input value={values.identifier} onChange={e=>setValues({...values,identifier:e.target.value})} placeholder="Email address or username" autoComplete="username" className="h-11 bg-surface"/></Field>
+ <Field label="Password"><PasswordInput value={values.password} onChange={e=>setValues({...values,password:e.target.value})} autoComplete="current-password" placeholder="Enter your password"/></Field>
+ <div className="text-right"><Link to="/forgot-password" className="text-sm font-semibold text-primary-strong hover:underline">Forgot Password?</Link></div>
+ {error&&<p role="alert" className="rounded-md border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">{error}</p>}
+ <Button type="submit" size="lg" className="w-full" disabled={busy}><LogIn/>{busy?"Signing in…":"Login"}</Button>
+ <p className="text-center text-sm text-muted-foreground">Don't have an account? <Link to="/register" className="font-bold text-primary-strong hover:underline">Create Account</Link></p>
+ </form>}</AuthShell>;
+}

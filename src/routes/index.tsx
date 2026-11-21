@@ -26,15 +26,15 @@ function Index() {
   return <div id="top" className="min-h-screen overflow-x-clip bg-background">
     <SiteHeader />
     <main>
-      <section className="relative min-h-[560px] overflow-hidden border-b border-border bg-surface sm:min-h-[570px] lg:min-h-[540px]">
+      <section className="dark-band relative min-h-[560px] overflow-hidden border-b border-border bg-charcoal sm:min-h-[570px] lg:min-h-[540px]">
           <img src={heroImage} alt="Bright professional technology workspace with laptop, networking equipment, keyboard, mouse, smartphone and headphones" width={1920} height={1088} fetchPriority="high" className="absolute inset-0 h-full w-full object-cover object-[72%_center] sm:object-[64%_center] lg:object-center" />
           <div className="absolute inset-0 bg-hero-overlay" />
           <div className="section-shell relative flex min-h-[560px] flex-col justify-end py-12 sm:min-h-[570px] sm:py-16 lg:min-h-[540px] lg:justify-center">
             <div className="max-w-2xl animate-fade-in">
-            <div className="inline-flex w-fit items-center gap-2 rounded-md border border-border bg-card/80 px-3 py-1.5 text-xs font-bold text-silver backdrop-blur"><Sparkles className="size-3.5 text-primary" /> Ghana's technology destination</div>
-            <h1 className="mt-6 max-w-xl font-display text-5xl font-bold leading-[1.08] text-foreground sm:text-6xl">GIMATech<span className="mt-3 block text-3xl leading-tight sm:text-4xl">Everything Tech.<br /><span className="bg-primary px-1.5 text-primary-foreground">One Place.</span></span></h1>
+            <div className="inline-flex w-fit items-center gap-2 rounded-md border border-brand-lemon/50 bg-brand-lemon px-3 py-1.5 text-xs font-bold text-brand-brown backdrop-blur"><Sparkles className="size-3.5 text-brand-brown" /> Ghana's technology destination</div>
+            <h1 className="mt-6 max-w-xl font-display text-5xl font-bold leading-[1.08] text-foreground sm:text-6xl">GIMATech<span className="mt-3 block text-3xl leading-tight sm:text-4xl">Everything Tech.<br /><span className="text-brand-orange">One Place.</span></span></h1>
             <p className="mt-5 max-w-xl text-base leading-7 text-silver-muted sm:text-lg">Discover laptops, computers, networking equipment, accessories and more — all in one place.</p>
-             <div className="mt-8 flex flex-col gap-3 sm:flex-row"><Button asChild size="lg"><Link to="/shop">Shop Now <ArrowRight /></Link></Button><Button asChild variant="surface" size="lg"><Link to="/shop" search={{ category: "all" }}>Explore Categories</Link></Button></div>
+             <div className="mt-8 flex flex-col gap-3 sm:flex-row"><Button asChild size="lg"><Link to="/shop">Shop Now <ArrowRight /></Link></Button><Button asChild variant="secondary" size="lg"><Link to="/shop" search={{ category: "all" }}>Explore Categories</Link></Button></div>
             <div className="mt-8 flex items-center gap-2 text-xs font-semibold text-silver-muted"><ShieldCheck className="size-4 text-primary" /> Demo products and prices are shown for development only.</div>
             </div>
           </div>

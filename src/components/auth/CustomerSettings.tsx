@@ -3,7 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { useAuth } from "@/context/AuthContext";
 import { updateCustomerProfile, changeCustomerPassword } from "@/lib/customer-auth.functions";
-import { Field } from "@/routes/login";
+import { Field } from "./AuthForm";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { PasswordInput } from "./PasswordInput";

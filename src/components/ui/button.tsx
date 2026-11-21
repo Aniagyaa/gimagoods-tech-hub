@@ -12,12 +12,13 @@ const buttonVariants = cva(
         default: "bg-primary text-primary-foreground shadow-sm hover:-translate-y-0.5 hover:bg-primary-bright hover:shadow-glow",
         destructive: "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90",
         outline:
-          "border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground",
-        secondary: "bg-silver text-charcoal shadow-sm hover:-translate-y-0.5 hover:bg-background",
+          "border border-brand-brown bg-brand-white text-brand-brown shadow-sm hover:bg-secondary hover:text-secondary-foreground",
+        secondary: "bg-secondary text-secondary-foreground shadow-sm hover:-translate-y-0.5 hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-primary",
         link: "text-primary underline-offset-4 hover:underline",
         surface: "border border-border bg-surface/90 text-foreground shadow-sm hover:-translate-y-0.5 hover:border-primary/60 hover:bg-primary-soft hover:text-primary hover:shadow-glow-soft",
-        light: "bg-background text-charcoal shadow-sm hover:-translate-y-0.5 hover:bg-primary hover:text-primary-foreground hover:shadow-glow",
+        brand: "bg-brand-brown text-brand-white shadow-sm hover:bg-brand-brown/90",
+        light: "bg-brand-white text-brand-brown shadow-sm hover:-translate-y-0.5 hover:bg-primary hover:text-primary-foreground hover:shadow-glow",
       },
       size: {
         default: "h-9 px-4 py-2",

@@ -1,51 +1,65 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { customerCredentialsSchema, customerRegistrationSchema, matchesCustomerCredentials, authErrorMessage } from "./validation";
+import { customerCredentialsSchema, customerRegistrationSchema, isCustomerAccount, authErrorMessage } from "./validation";
 
 export const registerCustomer = createServerFn({ method: "POST" })
-  .inputValidator((input) => customerRegistrationSchema.parse(input))
+  .inputValidator(input => customerRegistrationSchema.parse(input))
   .handler(async ({ data }) => {
     if (!data.contact) throw new Error("Please enter a valid Ghana contact number.");
     const { customerAuthClient, customerThrottle } = await import("./customer-auth.server");
-    await customerThrottle(data.contact);
+    await customerThrottle(data.email);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const [{ data: username, error: usernameError }, { data: contact, error: contactError }] = await Promise.all([
+    const checks = await Promise.all([
       supabaseAdmin.from("profiles").select("id").eq("username_normalized", data.username.toLowerCase()).maybeSingle(),
+      supabaseAdmin.from("admin_accounts").select("user_id").eq("username_normalized", data.username.toLowerCase()).maybeSingle(),
+      supabaseAdmin.from("profiles").select("id").eq("email", data.email).maybeSingle(),
+      supabaseAdmin.from("admin_accounts").select("user_id").ilike("auth_email", data.email.replace(/[%_]/g, c => `\\${c}`)).maybeSingle(),
       supabaseAdmin.from("profiles").select("id").eq("contact", data.contact).maybeSingle(),
     ]);
-    if (usernameError || contactError) throw new Error("Unable to connect to authentication service.");
-    if (username) return { error: "Username already exists." };
-    if (contact) return { error: "Contact number already registered." };
+    if (checks.some(check => check.error)) throw new Error("Unable to connect to authentication service.");
+    if (checks[0]?.data || checks[1]?.data) return { error: "Username already exists." };
+    if (checks[2]?.data || checks[3]?.data) return { error: "Email address already registered." };
+    if (checks[4]?.data) return { error: "Contact number already registered." };
     const url = process.env['SUPABASE_URL']; const key = process.env['SUPABASE_PUBLISHABLE_KEY'];
     if (!url || !key) throw new Error("Unable to connect to authentication service.");
     const client = customerAuthClient(url, key);
-    const { data: auth, error } = await client.auth.signUp({ phone: data.contact, password: data.password, options: { data: { username: data.username, full_name: data.fullName, contact: data.contact } } });
-    if (error) { console.warn("customer_signup_failed", { code: error.code, status: error.status }); return { error: authErrorMessage(error.message) }; }
-    // Profile and CUSTOMER membership are created atomically by the signup trigger.
-    return { error: null, session: auth.session ? { access_token: auth.session.access_token, refresh_token: auth.session.refresh_token } : null };
+    const { data: auth, error } = await client.auth.signUp({ email: data.email, password: data.password, options: { data: { customer_registration: true, username: data.username, full_name: data.fullName, contact: data.contact } } });
+    if (error) return { error: authErrorMessage(error.message) };
+    if (!auth.session || !auth.user) return { error: "Your account could not be signed in. Please try Login or contact GIMATech." };
+    const [{ data: profile }, { data: roles }] = await Promise.all([
+      client.from("profiles").select("account_status").eq("id", auth.user.id).maybeSingle(),
+      client.from("user_roles").select("role").eq("user_id", auth.user.id),
+    ]);
+    if (!isCustomerAccount(profile, roles)) { await client.auth.signOut(); return { error: "Customer account access is unavailable. Please contact GIMATech." }; }
+    return { error: null, session: { access_token: auth.session.access_token, refresh_token: auth.session.refresh_token } };
   });
 
 export const loginCustomer = createServerFn({ method: "POST" })
-  .inputValidator((input) => customerCredentialsSchema.parse(input))
+  .inputValidator(input => customerCredentialsSchema.parse(input))
   .handler(async ({ data }) => {
-    const invalid = "Invalid username, contact or password.";
-    if (!data.contact) return { error: invalid };
+    const invalid = "Invalid email, username or password.";
     const { customerAuthClient, customerThrottle } = await import("./customer-auth.server");
-    await customerThrottle(data.contact);
+    await customerThrottle(data.identifier);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    // Username resolution stays server-only; no private email is returned to visitors.
+    let email = data.identifier;
+    if (!email.includes("@")) {
+      const { data: profile, error } = await supabaseAdmin.from("profiles").select("email").eq("username_normalized", data.identifier).maybeSingle();
+      if (error) throw new Error("Unable to connect to authentication service.");
+      if (!profile?.email) return { error: invalid };
+      email = profile.email;
+    }
     const url = process.env['SUPABASE_URL']; const key = process.env['SUPABASE_PUBLISHABLE_KEY'];
     if (!url || !key) throw new Error("Unable to connect to authentication service.");
     const client = customerAuthClient(url, key);
-    const { data: auth, error } = await client.auth.signInWithPassword({ phone: data.contact, password: data.password });
-    if (error || !auth.session) { console.warn("customer_login_failed", { code: error?.code, status: error?.status }); return { error: error?.code === "phone_provider_disabled" ? authErrorMessage(error.message) : invalid }; }
+    const { data: auth, error } = await client.auth.signInWithPassword({ email, password: data.password });
+    if (error || !auth.session) return { error: invalid };
     const [{ data: profile }, { data: roles }] = await Promise.all([
-      client.from("profiles").select("username, contact, account_status").eq("id", auth.user.id).maybeSingle(),
+      client.from("profiles").select("account_status").eq("id", auth.user.id).maybeSingle(),
       client.from("user_roles").select("role").eq("user_id", auth.user.id),
     ]);
-    if (!profile || !matchesCustomerCredentials(profile, data.username, data.contact) || !roles?.some((row) => row.role === "CUSTOMER") || roles.some((row) => row.role === "ADMIN" || row.role === "SUPER_ADMIN")) {
-      await client.auth.signOut(); return { error: invalid };
-    }
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    if (!isCustomerAccount(profile, roles)) { await client.auth.signOut(); return { error: invalid }; }
     const { error: updateError } = await supabaseAdmin.from("profiles").update({ last_login_at: new Date().toISOString() }).eq("id", auth.user.id);
     if (updateError) { await client.auth.signOut(); throw new Error("Unable to connect to authentication service."); }
     return { error: null, session: { access_token: auth.session.access_token, refresh_token: auth.session.refresh_token } };
