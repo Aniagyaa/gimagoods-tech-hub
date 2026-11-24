@@ -122,7 +122,7 @@
   --shadow-glow: 0 4px 12px color-mix(in oklch, var(--brand-brown) 8%, transparent);
   --shadow-glow-soft: 0 4px 16px color-mix(in oklch, var(--brand-brown) 6%, transparent);
   --hero-overlay: linear-gradient(90deg, var(--brand-brown), color-mix(in oklch, var(--brand-brown) 94%, transparent) 36%, color-mix(in oklch, var(--brand-brown) 15%, transparent) 75%);
-  --deal-overlay: linear-gradient(90deg, var(--brand-brown), color-mix(in oklch, var(--brand-brown) 85%, transparent) 48%, transparent);
+  --deal-overlay: linear-gradient(90deg, var(--brand-orange), color-mix(in oklch, var(--brand-orange) 96%, transparent) 44%, color-mix(in oklch, var(--brand-orange) 30%, transparent));
   --chart-1: var(--brand-orange);
   --chart-2: var(--brand-lemon);
   --chart-3: var(--brand-brown);

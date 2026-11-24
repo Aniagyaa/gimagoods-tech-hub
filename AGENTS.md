@@ -15,6 +15,6 @@
 - Customer registration and identity login use fresh publishable auth clients in server functions; username-to-email resolution is private, throttled and server-only, and sessions require an active CUSTOMER profile with no administrator role.
 - Customer signup creates a profile and fixed CUSTOMER membership atomically in an Auth trigger; the registration marker never grants privileges, legacy administrator signup is skipped, and only editable display fields receive customer UPDATE grants.
 - Keep shared business contact values and validation in one module; contact writes use a validated public server function with an insert-only publishable client, and administrator reads require operational readiness plus customers.view, so visitors cannot read submissions.
-- Use the light semantic theme globally and a scoped dark-band palette on deliberate charcoal sections, so storefront and administrator pages retain readable contrast.
+- Use the light semantic theme globally and a scoped dark-band palette on deliberate dark brand sections, so storefront and administrator pages retain readable contrast.
 
-- Share customer form layout through AuthForm; public recovery routes consume only Auth-issued recovery sessions, so reset cannot bypass password proof or administrator authorization.
+- Share customer form layout through AuthForm; public recovery routes use the shared verified PASSWORD_RECOVERY event after Auth consumes the URL fragment, so reset cannot bypass password proof or administrator authorization.

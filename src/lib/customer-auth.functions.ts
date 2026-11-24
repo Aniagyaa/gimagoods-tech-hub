@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { customerCredentialsSchema, customerRegistrationSchema, isCustomerAccount, authErrorMessage } from "./validation";
+import { customerCredentialsSchema, customerRegistrationSchema, customerUsernameSchema, isCustomerAccount, authErrorMessage } from "./validation";
 
 export const registerCustomer = createServerFn({ method: "POST" })
   .inputValidator(input => customerRegistrationSchema.parse(input))
@@ -67,7 +67,7 @@ export const loginCustomer = createServerFn({ method: "POST" })
 
 export const updateCustomerProfile = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input) => z.object({ fullName: z.string().trim().min(1).max(100), username: z.string().trim().min(3).max(80) }).parse(input))
+  .inputValidator((input) => z.object({ fullName: z.string().trim().min(1).max(100), username: customerUsernameSchema }).parse(input))
   .handler(async ({ context, data }) => {
     const { data: profile } = await context.supabase.from("profiles").select("account_status").eq("id", context.userId).maybeSingle();
     if (profile?.account_status !== "active") throw new Error("Customer access denied.");

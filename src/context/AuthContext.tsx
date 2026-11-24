@@ -5,7 +5,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useRouter } from "@tanstack/react-router";
 
 export interface CustomerProfile { id: string; full_name: string; contact: string; username: string }
-interface AuthContextValue { user: AuthUser | null; profile: CustomerProfile | null; role: "CUSTOMER" | "ADMIN" | "SUPER_ADMIN" | null; loading: boolean; refreshProfile: () => Promise<void>; signOut: () => Promise<void> }
+interface AuthContextValue { user: AuthUser | null; profile: CustomerProfile | null; role: "CUSTOMER" | "ADMIN" | "SUPER_ADMIN" | null; loading: boolean; recoverySession: boolean; refreshProfile: () => Promise<void>; signOut: () => Promise<void> }
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -16,6 +16,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [role, setRole] = useState<AuthContextValue["role"]>(null);
   const [profile, setProfile] = useState<CustomerProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [recoverySession, setRecoverySession] = useState(false);
 
   const loadProfile = async (nextUser: AuthUser | null) => {
     setUser(nextUser);
@@ -35,11 +36,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       loadProfile(data.user).finally(() => setLoading(false));
     });
     const { data: subscription } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
+      if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED" && event !== "PASSWORD_RECOVERY") return;
       window.setTimeout(async () => {
         if (!mounted) return;
         const { data } = session ? await supabase.auth.getUser() : { data: { user: null } };
         if (!mounted) return;
+        if (event === "PASSWORD_RECOVERY") setRecoverySession(Boolean(data.user));
+        if (event === "SIGNED_OUT" || event === "SIGNED_IN") setRecoverySession(false);
         await loadProfile(data.user);
         void router.invalidate();
         if (event !== "SIGNED_OUT") void queryClient.invalidateQueries();
@@ -49,10 +52,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value = useMemo<AuthContextValue>(() => ({
-    user, profile, role, loading,
+    user, profile, role, loading, recoverySession,
     refreshProfile: () => loadProfile(user),
     signOut: async () => { await queryClient.cancelQueries(); queryClient.clear(); const { error } = await supabase.auth.signOut(); if (error) throw error; setUser(null); setProfile(null); setRole(null); await navigate({ to: "/login", replace: true }); },
-  }), [loading, profile, role, user]);
+  }), [loading, profile, role, user, recoverySession]);
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
